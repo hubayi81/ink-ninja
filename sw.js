@@ -25,7 +25,14 @@ self.addEventListener('activate', e => {
     caches.keys().then(keys =>
       Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
     ).then(() => self.clients.claim())
+    .then(() => self.clients.matchAll({ type: 'window' }))
+    .then(clients => clients.forEach(c => c.postMessage('inkninja-updated')))
   );
+});
+
+// 页面收到新版本通知后自动刷新一次（仅静默后台时）
+self.addEventListener('message', e => {
+  if (e.data === 'skip-waiting') self.skipWaiting();
 });
 
 self.addEventListener('fetch', e => {

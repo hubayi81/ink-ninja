@@ -87,15 +87,54 @@
 
   // 窗口
   canvas.addEventListener('contextmenu', e => e.preventDefault());
-  addEventListener('resize', () => game.resize());
-  addEventListener('orientationchange', () => setTimeout(() => game.resize(), 150));
+  addEventListener('resize', () => { game.resize(); checkOrientation(); });
+  addEventListener('orientationchange', () => setTimeout(() => { game.resize(); checkOrientation(); }, 150));
   document.addEventListener('visibilitychange', () => {
     if (document.hidden && game.state === 'playing') game.pause();
   });
 
+  // ---------- 移动端横屏引导 ----------
+  const isMobile = () => window.__mobOverride !== undefined
+    ? window.__mobOverride
+    : matchMedia('(hover: none) and (pointer: coarse)').matches;
+
+  function checkOrientation(){
+    const portrait = window.innerHeight > window.innerWidth * 1.05;
+    const hint = $id('rotate-hint');
+    if (isMobile() && portrait){
+      hint.classList.add('show');
+      if (game.state === 'playing') game.pause();
+    } else {
+      hint.classList.remove('show');
+    }
+  }
+  checkOrientation();
+
+  // 开始游戏时尝试全屏并锁定横屏（安卓生效；iOS 不支持则靠旋转提示）
+  async function tryLockLandscape(){
+    if (!isMobile()) return;
+    try {
+      const el = document.documentElement;
+      if (el.requestFullscreen && !document.fullscreenElement) await el.requestFullscreen();
+    } catch (e){}
+    try {
+      if (screen.orientation && screen.orientation.lock) await screen.orientation.lock('landscape');
+    } catch (e){}
+    setTimeout(checkOrientation, 100);
+  }
+  for (const id of ['btn-start', 'btn-daily', 'btn-retry', 'btn-restart-p']){
+    $id(id).addEventListener('click', tryLockLandscape);
+  }
+
   // PWA：离线缓存（http/https 环境下注册）
   if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)){
     navigator.serviceWorker.register('sw.js').catch(() => {});
+    // 新版本就绪时自动刷新一次，玩家永远拿到最新版
+    navigator.serviceWorker.addEventListener('message', e => {
+      if (e.data === 'inkninja-updated' && document.hidden === false){
+        location.reload();
+      }
+    });
   }
 
   // 主循环
