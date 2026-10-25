@@ -111,16 +111,25 @@
     const portrait = window.innerHeight > window.innerWidth;
     if (isMobile() && portrait){
       root.classList.add('rot');
+      // 用可见视口像素尺寸，避开移动端 100vh/vw 的地址栏问题
+      root.style.width = window.innerHeight + 'px';
+      root.style.height = window.innerWidth + 'px';
       window.__gameW = window.innerHeight;   // 长边作游戏宽
       window.__gameH = window.innerWidth;
     } else {
       root.classList.remove('rot');
+      root.style.width = '';
+      root.style.height = '';
       window.__gameW = undefined;
       window.__gameH = undefined;
     }
     game.resize();
   }
   applyForcedLandscape();
+  // 地址栏收放时重算（visualViewport 比 resize 更跟手）
+  if (window.visualViewport){
+    window.visualViewport.addEventListener('resize', applyForcedLandscape);
+  }
 
   // 开始游戏时尝试全屏并锁定横屏（安卓生效；微信/iOS 靠旋转渲染兜底）
   async function tryLockLandscape(){

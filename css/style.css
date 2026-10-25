@@ -23,8 +23,7 @@ body{
 }
 #game-root.rot{
   inset: auto; top: 0; left: 0;
-  width: 100vh;
-  height: 100vw;
+  /* 宽高由 JS 按像素设置（移动端 vh/vw 受地址栏影响不可靠） */
   transform-origin: 0 0;
   transform: rotate(90deg) translateY(-100%);
 }

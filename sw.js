@@ -1,5 +1,5 @@
 // 墨影忍者 Service Worker：核心资源离线缓存
-const CACHE = 'inkninja-v5';
+const CACHE = 'inkninja-v7';
 const ASSETS = [
   './',
   './index.html',
