@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#f2ecdf"/>
+  <rect x="56" y="56" width="400" height="400" rx="40" fill="none" stroke="#202028" stroke-width="10"/>
+  <rect x="296" y="96" width="104" height="104" rx="14" fill="#c0392b" transform="rotate(8 348 148)"/>
+  <text x="160" y="300" font-size="200" text-anchor="middle" fill="#202028" font-family="KaiTi, STKaiti, serif" font-weight="700">忍</text>
+  <text x="348" y="172" font-size="64" text-anchor="middle" fill="#fff" font-family="KaiTi, STKaiti, serif" transform="rotate(8 348 148)">忍</text>
+  <path d="M96 404 Q160 380 224 404 T352 404 T480 404" fill="none" stroke="#202028" stroke-width="12" stroke-linecap="round"/>
+</svg>

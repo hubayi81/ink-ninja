@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#f2ecdf">
+<title>墨影忍者 · 水墨横版跑酷</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23c0392b'/%3E%3Ctext x='32' y='46' font-size='40' text-anchor='middle' fill='%23fff' font-family='serif'%3E忍%3C/text%3E%3C/svg%3E">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon.svg">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<canvas id="game"></canvas>
+
+<!-- HUD -->
+<div id="hud">
+  <div id="hud-left">
+    <div id="hp-box">
+      <div id="hp-bar"><i id="hp-fill"></i></div>
+      <span id="hp-num">100/100</span>
+      <span id="shield-tag" class="hidden">守</span>
+    </div>
+    <div id="wp-box" title="武器等级（武魂）"><span id="wp-name">太刀·Lv1</span><div id="wp-bar"><i id="wp-fill"></i></div></div>
+    <div id="atk-cd" title="攻击冷却"><i id="atk-fill"></i></div>
+    <div id="skill-cd" title="技能冷却 (E/Q)"><i id="skill-fill"></i></div>
+    <div id="dash-cd" title="冲刺冷却"><i id="dash-fill"></i></div>
+    <div id="ult-cd" title="奥义（蓄满释放 L/C）"><i id="ult-fill"></i></div>
+  </div>
+  <div id="stats">
+    <div id="score">0</div>
+    <div id="substats"><span id="mode-tag" class="hidden">每日</span><span id="dist">0m</span><span class="dot">·</span><span id="coins">0</span> 钱</div>
+    <div id="combo" class="hidden">2 连杀</div>
+  </div>
+  <div id="hud-btns">
+    <button id="btn-sound" class="icon-btn" title="声音 (M)">🔊</button>
+    <button id="btn-pause" class="icon-btn" title="暂停 (P)">⏸</button>
+  </div>
+  <div id="boss-bar" class="hidden"><span id="boss-elem">火</span><span id="boss-name">鬼武士</span><i id="boss-hint"></i><div id="boss-hp"><i id="boss-fill"></i></div></div>
+  <div id="stage-hud" class="hidden"><span id="stage-label">第1关</span><div id="stage-bar"><i id="stage-fill"></i></div></div>
+</div>
+
+<!-- 触屏操作 -->
+<div id="touch-ui">
+  <div class="left-col">
+    <button id="t-dash" title="冲刺">疾</button>
+    <button id="t-skill" title="技能">技</button>
+    <button id="t-slide" title="按住滑铲">滑</button>
+  </div>
+  <div class="right-col">
+    <button id="t-ult" title="奥义">奥</button>
+    <button id="t-attack" title="攻击">攻</button>
+    <button id="t-jump" title="跳跃">跃</button>
+  </div>
+</div>
+
+<!-- 主菜单 -->
+<div id="menu" class="panel">
+  <div class="card">
+    <div class="seal">忍</div>
+    <h1>墨影忍者</h1>
+    <p class="subtitle">水 墨 横 版 跑 酷</p>
+    <div class="select-label">五行相克 · 克制+15% / 被克-10%</div>
+    <div id="elem-chart">金→木→土→水→火→金</div>
+    <div class="select-label">选择角色</div>
+    <div id="char-select" class="card-row"></div>
+    <div id="char-detail"></div>
+    <div class="select-label">选择武器流派</div>
+    <div id="wp-select" class="card-row"></div>
+    <div class="select-label">选择关卡</div>
+    <div id="stage-select" class="card-row stage-row2"></div>
+    <button id="btn-start" class="btn big">开始闯荡</button>
+    <div class="row">
+      <button id="btn-daily" class="btn">每日挑战</button>
+      <button id="btn-shop" class="btn">忍者功坊</button>
+      <button id="btn-ach" class="btn">成就</button>
+    </div>
+    <div id="best-line">最佳纪录 <b id="best-score">0</b></div>
+    <div id="menu-bank">钱袋 <b id="bank-coins">0</b> · 皮肤 <b id="skin-name">墨影</b> · 今日最佳 <b id="daily-best">0</b></div>
+    <div class="help">
+      <div class="help-col" id="help-desk">
+        <h3>电脑操作</h3>
+        <p><kbd>空格</kbd> / <kbd>W</kbd> 跳跃 · 空中再按二段跳</p>
+        <p><kbd>S</kbd> / <kbd>↓</kbd> 滑铲 / 空中速降</p>
+        <p><kbd>J</kbd> / <kbd>X</kbd> 攻击（近身挥刀·远程自动投镖）</p>
+        <p><kbd>E</kbd> / <kbd>Q</kbd> 技能 · <kbd>L</kbd> / <kbd>C</kbd> 奥义</p>
+        <p><kbd>Shift</kbd> / <kbd>K</kbd> 疾风冲刺（无敌）</p>
+        <p><kbd>P</kbd> 暂停 · <kbd>M</kbd> 静音</p>
+      </div>
+      <div class="help-col" id="help-touch">
+        <h3>手机操作</h3>
+        <p>「跃」= 跳（再点二段跳）·「滑」= 滑铲</p>
+        <p>「攻」= 攻击 ·「技」= 技能 ·「奥」= 大招</p>
+        <p>「疾」= 冲刺（无敌）</p>
+      </div>
+    </div>
+    <p class="tip">选好流派闯关夺星，功坊强化、成就集齐、每日一战！</p>
+  </div>
+</div>
+
+<!-- 局内商店（跑图补给点） -->
+<div id="runshop" class="panel hidden">
+  <div class="card shop-card">
+    <h2>补 给 点</h2>
+    <div id="shop-bank">本局铜钱 <b id="rs-coins">0</b></div>
+    <div id="rs-list"></div>
+    <button id="btn-rs-close" class="btn big">继续前进</button>
+  </div>
+</div>
+
+<!-- 功坊（永久升级商店） -->
+<div id="shop" class="panel hidden">
+  <div class="card shop-card">
+    <h2>忍 者 功 坊</h2>
+    <div id="shop-bank">钱袋 <b id="shop-coins">0</b></div>
+    <div class="select-label">强化</div>
+    <div id="shop-list"></div>
+    <div class="select-label">皮肤</div>
+    <div id="skin-list"></div>
+    <button id="btn-shop-close" class="btn big">返 回</button>
+  </div>
+</div>
+
+<!-- 成就 -->
+<div id="ach" class="panel hidden">
+  <div class="card shop-card">
+    <h2>成 就 <span id="ach-count">0 / 11</span></h2>
+    <div id="ach-list"></div>
+    <button id="btn-ach-close" class="btn big">返 回</button>
+  </div>
+</div>
+
+<!-- 暂停 -->
+<div id="pause" class="panel hidden">
+  <div class="card">
+    <h2>暂 停</h2>
+    <button id="btn-resume" class="btn big">继 续</button>
+    <div class="row">
+      <button id="btn-restart-p" class="btn">重新开始</button>
+      <button id="btn-menu-p" class="btn">主菜单</button>
+    </div>
+    <div class="row">
+      <button id="btn-music" class="btn small">音乐：开</button>
+      <button id="btn-sfx" class="btn small">音效：开</button>
+    </div>
+  </div>
+</div>
+
+<!-- 结算 -->
+<div id="over" class="panel hidden">
+  <div class="card">
+    <div class="stamp" id="over-stamp">卒</div>
+    <h2 id="over-title">忍者陨落</h2>
+    <div id="new-best" class="hidden">✦ 新纪录 ✦</div>
+    <div class="results">
+      <span>得分</span><b id="r-score">0</b>
+      <span>距离</span><b id="r-dist">0m</b>
+      <span>铜钱</span><b id="r-coins">0</b>
+      <span>击杀</span><b id="r-kills">0</b>
+      <span>最佳</span><b id="r-best">0</b>
+      <span id="r-daily-row" class="hidden">今日最佳</span><b id="r-daily" class="hidden">0</b>
+    </div>
+    <div id="r-bonus" class="hidden">每日首战奖励 +200 钱</div>
+    <button id="btn-retry" class="btn big">再战一局</button>
+    <button id="btn-menu-o" class="btn">主菜单</button>
+  </div>
+</div>
+
+<script src="js/utils.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/input.js"></script>
+<script src="js/entities.js"></script>
+<script src="js/chunks.js"></script>
+<script src="js/background.js"></script>
+<script src="js/game.js"></script>
+<script src="js/main.js"></script>
+<div id="toast"></div>
+<div id="low-hp"></div>
+</body>
+</html>

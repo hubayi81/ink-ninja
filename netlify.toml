@@ -1,0 +1,19 @@
+# Netlify 配置：纯静态，无需构建
+[build]
+  publish = "."
+
+# Service Worker 与入口不做长缓存，保证更新即时生效
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=3600"

@@ -1,0 +1,16 @@
+{
+  "name": "墨影忍者 · 水墨五行跑酷",
+  "short_name": "墨影忍者",
+  "description": "水墨风横版跑酷：五行克制、四角色、五鬼王、关卡闯荡",
+  "lang": "zh-CN",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#f2ecdf",
+  "theme_color": "#f2ecdf",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}
