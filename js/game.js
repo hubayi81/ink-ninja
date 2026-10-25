@@ -132,7 +132,9 @@ class Game {
   }
 
   resize(){
-    const cw = window.innerWidth, ch = window.innerHeight;
+    // 竖屏强制横屏模式下，游戏视口取屏幕长边×短边
+    const cw = window.__gameW || window.innerWidth;
+    const ch = window.__gameH || window.innerHeight;
     this.dpr = Math.min(window.devicePixelRatio || 1, 2);
     this.canvas.width = Math.round(cw * this.dpr);
     this.canvas.height = Math.round(ch * this.dpr);

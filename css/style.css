@@ -9,11 +9,24 @@
 html, body{ height: 100%; overflow: hidden; background: var(--paper); }
 
 body{
-  position: fixed; inset: 0;
   font-family: 'Kaiti SC', 'KaiTi', 'STKaiti', 'DFKai-SB', 'Noto Serif SC', serif;
   color: var(--ink);
   user-select: none; -webkit-user-select: none;
+}
+
+/* 游戏根容器：手机竖屏时整体旋转90°，强制横屏体验 */
+#game-root{
+  position: fixed; inset: 0;
+  overflow: hidden;
+  background: var(--paper);
   touch-action: none;
+}
+#game-root.rot{
+  inset: auto; top: 0; left: 0;
+  width: 100vh;
+  height: 100vw;
+  transform-origin: 0 0;
+  transform: rotate(90deg) translateY(-100%);
 }
 
 canvas#game{ position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
@@ -332,35 +345,6 @@ body.playing #touch-ui{ display: flex; }
 }
 #low-hp.on{ opacity: 1; animation: lowpulse 1.1s infinite; }
 @keyframes lowpulse{ 50%{ opacity: .45; } }
-
-/* ---------- 竖屏旋转提示（移动端） ---------- */
-#rotate-hint{
-  position: fixed; inset: 0; z-index: 30;
-  display: none;
-  flex-direction: column; align-items: center; justify-content: center; gap: 22px;
-  background: #f2ecdf;
-}
-#rotate-hint.show{ display: flex; }
-#rotate-hint .phone-ico{
-  width: 46px; height: 82px;
-  border: 4px solid var(--ink); border-radius: 9px;
-  position: relative;
-  animation: rotatephone 1.6s ease-in-out infinite;
-}
-#rotate-hint .phone-ico::after{
-  content: ''; position: absolute; bottom: 5px; left: 50%;
-  width: 14px; height: 3px; transform: translateX(-50%);
-  background: var(--ink); border-radius: 2px;
-}
-@keyframes rotatephone{
-  0%, 20%{ transform: rotate(0deg); }
-  55%, 80%{ transform: rotate(-90deg); }
-  100%{ transform: rotate(-90deg); }
-}
-#rotate-hint p{
-  font-size: 19px; letter-spacing: 3px; color: var(--ink);
-}
-#rotate-hint b{ color: var(--red); }
 
 /* ---------- 角色选择 ---------- */
 .ccard{

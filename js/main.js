@@ -87,30 +87,42 @@
 
   // 窗口
   canvas.addEventListener('contextmenu', e => e.preventDefault());
-  addEventListener('resize', () => { game.resize(); checkOrientation(); });
-  addEventListener('orientationchange', () => setTimeout(() => { game.resize(); checkOrientation(); }, 150));
+  addEventListener('resize', () => { applyForcedLandscape(); });
+  addEventListener('orientationchange', () => setTimeout(() => { applyForcedLandscape(); }, 150));
   document.addEventListener('visibilitychange', () => {
     if (document.hidden && game.state === 'playing') game.pause();
   });
 
-  // ---------- 移动端横屏引导 ----------
+  // ---------- 移动端强制横屏：竖屏时整个游戏旋转90°渲染 ----------
+  const root = $id('game-root');
   const isMobile = () => window.__mobOverride !== undefined
     ? window.__mobOverride
     : matchMedia('(hover: none) and (pointer: coarse)').matches;
 
-  function checkOrientation(){
-    const portrait = window.innerHeight > window.innerWidth * 1.05;
-    const hint = $id('rotate-hint');
-    if (isMobile() && portrait){
-      hint.classList.add('show');
-      if (game.state === 'playing') game.pause();
-    } else {
-      hint.classList.remove('show');
+  // 屏幕坐标 → 游戏坐标（旋转模式下反旋映射，供画布触控分区用）
+  window.__toGameXY = (cx, cy, rect) => {
+    if (root.classList.contains('rot')){
+      return [cy - rect.top, rect.right - cx];   // 顺时针90°：gx=↓, gy=←
     }
-  }
-  checkOrientation();
+    return [cx - rect.left, cy - rect.top];
+  };
 
-  // 开始游戏时尝试全屏并锁定横屏（安卓生效；iOS 不支持则靠旋转提示）
+  function applyForcedLandscape(){
+    const portrait = window.innerHeight > window.innerWidth;
+    if (isMobile() && portrait){
+      root.classList.add('rot');
+      window.__gameW = window.innerHeight;   // 长边作游戏宽
+      window.__gameH = window.innerWidth;
+    } else {
+      root.classList.remove('rot');
+      window.__gameW = undefined;
+      window.__gameH = undefined;
+    }
+    game.resize();
+  }
+  applyForcedLandscape();
+
+  // 开始游戏时尝试全屏并锁定横屏（安卓生效；微信/iOS 靠旋转渲染兜底）
   async function tryLockLandscape(){
     if (!isMobile()) return;
     try {
@@ -120,7 +132,7 @@
     try {
       if (screen.orientation && screen.orientation.lock) await screen.orientation.lock('landscape');
     } catch (e){}
-    setTimeout(checkOrientation, 100);
+    setTimeout(applyForcedLandscape, 100);
   }
   for (const id of ['btn-start', 'btn-daily', 'btn-retry', 'btn-restart-p']){
     $id(id).addEventListener('click', tryLockLandscape);

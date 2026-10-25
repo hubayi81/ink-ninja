@@ -69,7 +69,16 @@ const Input = {
       }
       if (game.state !== 'playing') return;
       const r = canvas.getBoundingClientRect();
-      if ((e.clientX - r.left) > r.width * 0.34){
+      // 旋转横屏模式下坐标反旋映射
+      let gx = e.clientX - r.left;
+      const gameW = window.__gameW || r.width;
+      if (window.__toGameXY){
+        const p = window.__toGameXY(e.clientX, e.clientY, r);
+        gx = p[0];
+      } else if (gx > r.width * 0.34){
+        gx = gameW * 0.7;   // 落在右侧
+      }
+      if (gx > gameW * 0.34){
         Input.jumpSet.add(e.pointerId);
         Input.jumpDown();
       } else {
