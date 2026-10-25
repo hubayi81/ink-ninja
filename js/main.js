@@ -95,9 +95,14 @@
 
   // ---------- 移动端强制横屏：竖屏时整个游戏旋转90°渲染 ----------
   const root = $id('game-root');
-  const isMobile = () => window.__mobOverride !== undefined
-    ? window.__mobOverride
-    : matchMedia('(hover: none) and (pointer: coarse)').matches;
+  // 手机判定：触摸为主输入 且 屏幕物理宽度足够小（排除触屏笔记本/平板电脑）
+  // 竖屏手机最长边通常 < 900 逻辑像素；桌面/笔记本通常 ≥ 1000
+  const isMobile = () => {
+    if (window.__mobOverride !== undefined) return window.__mobOverride;
+    const touch = matchMedia('(hover: none) and (pointer: coarse)').matches;
+    const small = Math.min(screen.width, screen.height) <= 900;
+    return touch && small;
+  };
 
   // 屏幕坐标 → 游戏坐标（旋转模式下反旋映射，供画布触控分区用）
   window.__toGameXY = (cx, cy, rect) => {
